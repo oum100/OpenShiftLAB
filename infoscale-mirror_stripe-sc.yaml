@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: infoscall-mirror_stripe-sc
+  annotations:
+    description: Infoscale Mirror StorageClass
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: org.veritas.infoscale
+parameters:
+  fstype: vxfs
+  layout: mirror-stripe
+  nstripe: '4'
+  stripeUnit: '64'
+  faultTolerance: "1"
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate

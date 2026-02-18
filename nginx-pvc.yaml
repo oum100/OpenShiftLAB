@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+  namespace: nginx-demo
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: infoscale-concat-sc
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi

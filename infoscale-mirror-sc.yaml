@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: infoscall-mirror-sc
+  annotations:
+    description: Infoscale Mirror StorageClass
+provisioner: org.veritas.infoscale
+parameters:
+  fstype: vxfs
+  layout: mirror
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
