@@ -1,6 +1,11 @@
 # Lab: Deploy nginx into 3 worker nodes.
+File: nginx-allin.yaml will perform following
+- Create namespace "nginx-demo"
+- Create PVC from storage class infoscale-concat-sc
+- Deploy nginx
+- Create Service
 
-Command:  *#oc apply -f nginx-deploy.yaml*
+Command:  *#oc apply -f nginx-allin.yaml*
 
 The content of "nginx-deploy.yaml"
 ```
@@ -152,5 +157,6 @@ echo '<!doctype html><title>Hello</title><h1>Updated from shell</h1><p>Time: '$(
 
 
 To show all pod mount same pvc
+
 
 df -k    look for /usr/share/nginx/html
