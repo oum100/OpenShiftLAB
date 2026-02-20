@@ -1,0 +1,33 @@
+
+---
+apiVersion: infoscale.veritas.com/v1
+kind: GlobalClusterMembership
+metadata:
+  name: global-cluster-membership
+spec:
+  # Local cluster name in the global membership
+  localClusterName: Clus1
+
+  # Details of member clusters.
+  globalMemberClusters:
+      # Cluster ID of each member of global cluster membership
+    - clusterID: Clus1
+      # Address Used For Communicating With Peer Cluster's DR Controller
+      drControllerAddress: "10.0.10.1"
+      # Port used for DR controller
+      drControllerPort: "8080"
+    - clusterID: Clus2
+      drControllerAddress: "10.0.10.2"
+      drControllerPort: "9090"
+
+  # If heartbeat with peer cluster missed more than CounterMissTolerance times, then cluster will be moved to FAULTED state
+  counterMissTolerance: 5
+  globalClusterOperation: "none"
+  # Application metadata backup sync frequency to DR site(s) in minutes
+  metadataBackupInterval: 15
+  # Refresh data replication status after specified minutes
+  datarepRefreshStatusFrequency: 5
+  # Include cluster-scoped Custom Resource Definitions (CRDs) in disaster recovery plan backup
+  backupClusterScopeCRD: true
+  # Maxmium metadata backup copies stored per DR plan
+  maximumMetadataCopies: 5

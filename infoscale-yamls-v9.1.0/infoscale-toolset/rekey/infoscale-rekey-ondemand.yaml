@@ -1,0 +1,68 @@
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: infoscale-tools-cert
+  namespace: infoscale-vtas
+spec:
+  commonName: infoscale-toolset
+  usages:
+  - client auth
+  duration: 1h0m0s
+  issuerRef:
+    kind: ClusterIssuer
+    name: infoscale-cert-issuer
+  secretName: infoscale-tools-tls
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: infoscale-rekey-ondemand
+  namespace: infoscale-vtas
+spec:
+  backoffLimit: 1
+  # cleanup timeout after completion.
+  # adjust as per your need
+  ttlSecondsAfterFinished: 300
+  activeDeadlineSeconds: 300
+  template:
+    spec:
+      serviceAccount: infoscale-sds-operator
+      restartPolicy: Never
+      containers:
+      - name: infoscale-rekey-ondemand
+        image: <registry>/arctera/infoscale-sds-toolset:9.1.0-rhel
+        imagePullPolicy: IfNotPresent
+        command:
+        - /infoscale-toolset
+        args:
+        - operation
+        - rekey
+        - --ondemand
+        # will iterate all infoscale clusters if namespace is not specified
+        - --certdir=$(INFOSCALE_AUTH_KEYSTORE)
+        env:
+          - name: ISO_DEPLOYMENT_NS
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: INFOSCALE_AUTH_KEYSTORE
+            value: "/etc/vx/toolset/"
+        volumeMounts:
+        - mountPath: /etc/vx/clusterset
+          name: infoscale-clusterset
+          readOnly: true
+        - mountPath: /etc/vx/toolset
+          name: cert
+          readOnly: true
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          secretName: infoscale-tools-tls
+      - name: infoscale-clusterset
+        configMap:
+          name: infoscale-clusterset
+          optional: true

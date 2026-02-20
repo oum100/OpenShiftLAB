@@ -1,0 +1,20 @@
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dr-alert
+  namespace: infoscale-vtas
+spec:
+  groups:
+  - name: dralert
+    rules:
+    - alert: ReplicationAlert
+      annotations:
+        message: 'Replication has been stopped/paused'
+      expr: |
+        vxvm_rvg_replication_status{job="infoscale-vtas/infoscale-metrics",namespace="infoscale-vtas"} == 0.0
+      for: 5m
+      labels:
+        severity: critical
+        prometheus: openshift-monitoring/k8s

@@ -1,0 +1,1718 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: infoscale-vtas/infoscale-dr-webhook-cert
+    controller-gen.kubebuilder.io/version: v0.19.0
+  name: datareplications.infoscale.veritas.com
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: infoscale-dr-webhook-service
+          namespace: infoscale-vtas
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: infoscale.veritas.com
+  names:
+    kind: DataReplication
+    listKind: DataReplicationList
+    plural: datareplications
+    shortNames:
+    - datarep
+    singular: datareplication
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.currentPrimary
+      name: Proposed Primary
+      type: string
+    - jsonPath: .status.currentPrimary
+      name: Current Primary
+      type: string
+    - jsonPath: .spec.selector.namespace
+      name: App Namespace
+      type: string
+    - jsonPath: .spec.selector.labels
+      name: Labels
+      type: string
+    - jsonPath: .status.summaryOfReplication
+      name: Replication Summary
+      priority: 1
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: DataReplication is the Schema for the storagereplications API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec defines the desired properties of storage replication
+            properties:
+              cloudVendor:
+                default: Local
+                description: |-
+                  Cloud Vendor (e.g Azure/Aws) on remote VVR site.
+                  Default will be Local.
+                enum:
+                - Local
+                - Azure
+                - Aws
+                type: string
+              currentPrimary:
+                description: Current primary site name
+                type: string
+              force:
+                description: |-
+                  In case of takeover operation, set force to true along with
+                  the updated CurrentPrimary value. In case of migrate operation,
+                  force should be kept false and only CurrentPrimary needs to be changed.
+                type: boolean
+              lbEnabled:
+                default: false
+                description: |-
+                  In case of load balancer based n/w traffic management, set LbEnabled to true.
+                  else the default value should be always kept false.
+                type: boolean
+              localHostAddress:
+                description: Resolvable hostname or IP address of the local VVR site
+                type: string
+              localNIC:
+                description: Network adapter for virtual IP
+                type: string
+              localNICList:
+                description: List of hostname and corresponding network adapter for
+                  virtual IP
+                items:
+                  type: string
+                type: array
+              localNetMask:
+                description: Netmask for virtual ip
+                type: string
+              refreshStatus:
+                description: Set this to true to refresh replication status
+                type: boolean
+              remoteClusterDetails:
+                description: Details about remote clusters involved in the storage
+                  replication
+                items:
+                  properties:
+                    bandwidthLimit:
+                      description: |-
+                        Defines the maximum network bandwidth (in bits per second) that can
+                        be used during replication.
+                        If unspecified, then available network bandwidth will be used.
+                      type: string
+                    clusterName:
+                      description: Remote cluster name which is part of storage replication
+                      type: string
+                    force:
+                      description: |-
+                        Set force to true if operations like start replication, stop replication needs to
+                        be performed forcefully.
+                        Default value is false.
+                      type: boolean
+                    latencyProtection:
+                      description: Indicates whether latency protection is to be enabled
+                        for the RLINK.
+                      enum:
+                      - fail
+                      - override
+                      - disable
+                      type: string
+                    logProtection:
+                      description: |-
+                        Indicates whether log protection (SRL protection) is to be enabled
+                        for the RLINK.
+                      enum:
+                      - autodcm
+                      - dcm
+                      - fail
+                      - disable
+                      - override
+                      type: string
+                    networkTransportProtocol:
+                      description: |-
+                        Indicates the network transport protocol that is used by RLINKs for
+                        communicating between hosts.
+                        Supported values are TCP and UDP, default is TCP.
+                      enum:
+                      - TCP
+                      - UDP
+                      type: string
+                    remoteCloudVendor:
+                      default: Local
+                      description: |-
+                        Cloud Vendor (e.g Azure/Aws) on remote VVR site.
+                        Default will be Local.
+                      enum:
+                      - Local
+                      - Azure
+                      - Aws
+                      type: string
+                    remoteHostAddress:
+                      description: Resolvable hostname or IP address of the remote
+                        VVR site
+                      type: string
+                    remoteLbEnabled:
+                      default: false
+                      description: |-
+                        In case of load balancer based n/w traffic management, set RemoteLbEnabled to true.
+                        else the default value should be always kept false.
+                      type: boolean
+                    remoteNIC:
+                      description: Network adapter for virtual IP
+                      type: string
+                    remoteNICList:
+                      description: List of hostname and corresponding network adapter
+                        for virtual IP
+                      items:
+                        type: string
+                      type: array
+                    remoteNetMask:
+                      description: Netmask for virtual ip
+                      type: string
+                    remoteRouteTableResourceIds:
+                      description: Applicable for Cloud-Vendor based environments,
+                        If "remoteHostAddress" value is an Overlay N/w IP, then specify
+                        all applicable Route table resource ids.
+                      items:
+                        type: string
+                      type: array
+                    replicationState:
+                      description: |-
+                        Replication state like start, stop, pasue, resume and migrate.
+                        Default state will be start.
+                      enum:
+                      - start
+                      - stop
+                      - pause
+                      - resume
+                      - resync
+                      type: string
+                    replicationType:
+                      description: |-
+                        Replication type i.e. sync or async to be used.
+                        If unspecified, defaults to async.
+                      enum:
+                      - async
+                      - sync
+                      type: string
+                  required:
+                  - clusterName
+                  - remoteHostAddress
+                  type: object
+                type: array
+              routeTableResourceIds:
+                description: Applicable for Cloud-Vendor based environments, If "localHostAddress"
+                  value is an Overlay N/w IP, then specify all applicable Route table
+                  resource ids.
+                items:
+                  type: string
+                type: array
+              selector:
+                description: |-
+                  Specify namespace and optionally labels to decide what all
+                  persistent volumes need to be part of storage replication
+                properties:
+                  labels:
+                    description: |-
+                      Array of comma separated labels which can select persistent volumes to be replicated
+                      in more granular way.
+                      If multiple provided they will be joined by the OR operator.
+                    items:
+                      type: string
+                    type: array
+                  namespace:
+                    description: Name of namespace which is to be considered for storage
+                      replication
+                    type: string
+                required:
+                - namespace
+                type: object
+            required:
+            - currentPrimary
+            - localHostAddress
+            - remoteClusterDetails
+            - selector
+            type: object
+          status:
+            description: Status defines the current status of storage replication
+            properties:
+              addVolumesInProgress:
+                description: In progress add volumes to replication
+                type: string
+              currentPrimary:
+                description: Current primary site name
+                type: string
+              encrypted:
+                description: Specifies if encryption is enabled or not for rlink
+                type: boolean
+              errorDetails:
+                description: Error details
+                properties:
+                  errorCode:
+                    description: ErrorCode represents the error code in case the request
+                      fails.
+                    type: string
+                  errorMessage:
+                    description: Error messages corresponding to the failure.
+                    type: string
+                type: object
+              internalStatus:
+                description: Internal status of data replication, it is used by drplan
+                  CR
+                type: string
+              lastRefreshed:
+                description: Timestamp of last replication status update
+                type: string
+              phase:
+                description: Current phase of data replication
+                type: string
+              primaryStatus:
+                description: Status of Primary site
+                properties:
+                  dgName:
+                    description: Diskgroup name to which RVG belongs
+                    type: string
+                  logownerresName:
+                    description: VCS resource created for RVG logowner
+                    type: string
+                  primaryHost:
+                    description: Primary Host name
+                    type: string
+                  rvgName:
+                    description: Replicated Volume Group (RVG) name internally used
+                      by InfoScale
+                    type: string
+                  rvgSgName:
+                    description: VCS service group name created for RVG
+                    type: string
+                  rvgState:
+                    description: Replicated Volume Group (RVG) state reported by InfoScale
+                    type: string
+                  sgName:
+                    description: VCS service group name created for HA of VIP
+                    type: string
+                  srlName:
+                    description: Storage Replicator Log (SRL) volume name created
+                      by InfoScale
+                    type: string
+                  srlSize:
+                    description: Storage Replicator Log (SRL) volume size
+                    type: string
+                type: object
+              replicationConfigErrors:
+                description: Config errors observed in VVR replication
+                type: string
+              secondaryStatus:
+                description: Status of Secondary site(s)
+                items:
+                  properties:
+                    bandwidthLimit:
+                      description: Bandwidth limit
+                      type: string
+                    dataStatus:
+                      description: Data status
+                      type: string
+                    force:
+                      description: Indicates if some operation needs to be performed
+                        forcefully
+                      type: boolean
+                    latencyProtection:
+                      description: Latency protection setting
+                      type: string
+                    logProtection:
+                      description: SRL protection setting
+                      type: string
+                    loggingTo:
+                      description: Logging to SRL or DCM
+                      type: string
+                    logownerresName:
+                      description: VCS resource created for RVG logowner
+                      type: string
+                    networkTransportProtocol:
+                      description: |-
+                        Indicates the network transport protocol that is used by RLINKs for
+                        communicating between hosts.
+                      type: string
+                    replicationMode:
+                      description: Replication mode
+                      type: string
+                    replicationState:
+                      description: Replication state like start, stop, pasue, resume
+                        and migrate.
+                      type: string
+                    replicationStatus:
+                      description: Replication status
+                      type: string
+                    rvgName:
+                      description: Replicated Volume Group (RVG) name internally used
+                        by InfoScale
+                      type: string
+                    rvgSgName:
+                      description: VCS service group name created for RVG
+                      type: string
+                    secondaryHost:
+                      description: Secondary Host name
+                      type: string
+                    sgName:
+                      description: VCS service group name created for HA of VIP
+                      type: string
+                    srlName:
+                      description: Storage Replicator Log (SRL) volume name created
+                        by InfoScale
+                      type: string
+                    timestampInfo:
+                      description: Timestamp info related to replication
+                      type: string
+                  type: object
+                type: array
+              snapshotVolumes:
+                description: Snapshot volumes skip from replication
+                type: string
+              summaryOfReplication:
+                description: Datareplication summary
+                type: string
+              volumeTasks:
+                additionalProperties:
+                  type: string
+                description: Map of Volume and Task
+                type: object
+              volumesTotalSizeBytes:
+                description: Total volume size in bytes
+                type: string
+              volumesUnderReplication:
+                description: VxVM volumes which are part of replication
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: infoscale-vtas/infoscale-dr-webhook-cert
+    controller-gen.kubebuilder.io/version: v0.19.0
+  name: disasterrecoveryplans.infoscale.veritas.com
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: infoscale-dr-webhook-service
+          namespace: infoscale-vtas
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: infoscale.veritas.com
+  names:
+    kind: DisasterRecoveryPlan
+    listKind: DisasterRecoveryPlanList
+    plural: disasterrecoveryplans
+    shortNames:
+    - drplan
+    singular: disasterrecoveryplan
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.primaryCluster
+      name: Proposed Primary
+      type: string
+    - jsonPath: .status.primaryCluster
+      name: Current Primary
+      type: string
+    - jsonPath: .spec.dataReplicationPointer
+      name: Data Replication Pointer
+      priority: 1
+      type: string
+    - jsonPath: .spec.dnsPointer
+      name: DNS Pointer
+      priority: 1
+      type: string
+    - jsonPath: .spec.selector.namespace
+      name: App Namespace
+      type: string
+    - jsonPath: .spec.selector.labels
+      name: Labels
+      type: string
+    - jsonPath: .spec.preferredClusterList
+      name: Preferred Cluster List
+      priority: 1
+      type: string
+    - jsonPath: .status.phase
+      name: Status
+      priority: 1
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: DisasterRecoveryPlan is the Schema for the disasterrecoveryplans
+          API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DisasterRecoveryPlanSpec defines the desired state of DisasterRecoveryPlan.
+            properties:
+              clusterFailOverPolicy:
+                description: |-
+                  Kind of corrective action in case of disaster.
+                  Default value is "Manual".
+                enum:
+                - Manual
+                - AutoFailOver
+                type: string
+              dataReplicationPointer:
+                description: Pointer to manage data replication
+                type: string
+              dnsPointer:
+                description: Pointer to manage DNS endpoints
+                type: string
+              existingResourcePolicy:
+                description: |-
+                  ExistingResourcePolicy specifies the restore behaviour for the kubernetes resource to be restored.
+                  Default value is "update"
+                type: string
+              force:
+                description: Set force to true if peer cluster(s) is not reachable
+                  and local cluster needs to perform takeover.
+                type: boolean
+              metadataSyncDetails:
+                description: Metadata sync details across cluster
+                items:
+                  description: MetadataSyncData to capture backup information for
+                    configured clusters.
+                  properties:
+                    backupName:
+                      description: Last successfully synced metadata backup for this
+                        cluster
+                      type: string
+                    clusterID:
+                      description: Cluster ID
+                      type: string
+                    syncLag:
+                      description: SyncLag to determine whether last metadata backup
+                        is successfully synced to this peer cluster
+                      type: boolean
+                  required:
+                  - backupName
+                  - clusterID
+                  - syncLag
+                  type: object
+                type: array
+              preferredClusterList:
+                description: |-
+                  List Of member cluster(s) where this DRPlan can failOver.
+                  Sequence Of MemberCluster specified in this list denotes relative preference of member cluster(s).
+                  Must be subset of global cluster membership
+                items:
+                  type: string
+                type: array
+              primaryCluster:
+                description: Update this attribute to promote a cluster as primary
+                  for this DR Plan
+                type: string
+              selector:
+                description: |-
+                  Specify namespace and optionally labels to decide what all
+                  needs to be part of Disaster Recovery Plan
+                properties:
+                  labels:
+                    description: |-
+                      Array of comma separated labels which can select persistent volumes to be replicated
+                      in more granular way.
+                      If multiple provided they will be joined by the OR operator.
+                    items:
+                      type: string
+                    type: array
+                  namespace:
+                    description: Name of namespace which is to be considered for storage
+                      replication
+                    type: string
+                required:
+                - namespace
+                type: object
+              veleroBkpName:
+                description: Velero backup name
+                type: string
+            required:
+            - primaryCluster
+            - selector
+            type: object
+          status:
+            description: DisasterRecoveryPlanStatus defines the observed state of
+              DisasterRecoveryPlan.
+            properties:
+              backupRequestState:
+                description: BackupRequestState captures the current state of a Velero
+                  backup operation
+                properties:
+                  attributes:
+                    description: Attributes related to the request.
+                    properties:
+                      errorCount:
+                        description: Errors is the count of error messages generated
+                          during backup.
+                        type: integer
+                      itemsBackedUp:
+                        description: ItemsBackedUp represent the actual number of
+                          resources velero backed up.
+                        type: integer
+                      totalItems:
+                        description: TotalItems represent the total number of resources
+                          velero listed for backup.
+                        type: integer
+                      warningCount:
+                        description: Warnings is the count of warning messages generated
+                          during backup.
+                        type: integer
+                    type: object
+                  errorDetails:
+                    description: ErrorDetails related to this request.
+                    properties:
+                      additionalErrorMessages:
+                        additionalProperties:
+                          items:
+                            type: string
+                          type: array
+                        description: AdditionalErrorMessages contains the error/warning
+                          messages from the underlying library.
+                        nullable: true
+                        type: object
+                      errors:
+                        description: Errors has the error messages corresponding to
+                          the failure.
+                        type: string
+                      validationErrors:
+                        description: |-
+                          ValidationErrors is a slice of all validation errors (if
+                          applicable).
+                        items:
+                          type: string
+                        nullable: true
+                        type: array
+                    type: object
+                  phase:
+                    description: Phase is the current state of the Backup.
+                    enum:
+                    - New
+                    - InProgress
+                    - ValidationFailed
+                    - Completed
+                    - PartiallyFailed
+                    - Failed
+                    type: string
+                type: object
+              dataReplicationStatus:
+                description: Data replication status
+                type: string
+              lastBackupName:
+                description: Last explicit metadata backup name
+                type: string
+              metadataSyncStatus:
+                description: Metadata Sync Status
+                type: string
+              phase:
+                description: Data replication plan phase
+                type: string
+              primaryCluster:
+                description: Current primary site for this DR plan
+                type: string
+              restoreRequestState:
+                description: RestoreRequestState captures the current state of a Velero
+                  restore operation
+                properties:
+                  backupName:
+                    description: BackupName is the backup from which current restore
+                      is triggered
+                    type: string
+                  errorDetails:
+                    description: ErrorDetails defines the error details for the restore
+                      operation
+                    properties:
+                      additionalErrorInfo:
+                        items:
+                          description: AdditionalErrorInfo ...
+                          properties:
+                            level:
+                              type: string
+                            msg:
+                              type: string
+                          type: object
+                        type: array
+                      errCode:
+                        type: integer
+                      errMessage:
+                        type: string
+                    type: object
+                  phase:
+                    description: Phase is the current state of the Restore.
+                    enum:
+                    - New
+                    - Queued
+                    - InProgress
+                    - Completed
+                    - Failed
+                    - BackupNotFound
+                    - PartiallyFailed
+                    type: string
+                  retryCount:
+                    description: RetryCount current BSL restore retries on failure
+                    type: integer
+                type: object
+              scheduleStatus:
+                description: Schedule status
+                enum:
+                - SCHEDULE_STARTED
+                - SCHEDULE_STOPPED
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: infoscale-vtas/infoscale-dr-webhook-cert
+    controller-gen.kubebuilder.io/version: v0.19.0
+  name: dns.infoscale.veritas.com
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: infoscale-dr-webhook-service
+          namespace: infoscale-vtas
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: infoscale.veritas.com
+  names:
+    kind: DNS
+    listKind: DNSList
+    plural: dns
+    shortNames:
+    - vxdns
+    singular: dns
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.domain
+      name: domain
+      type: string
+    - jsonPath: .status.dnsState
+      name: State
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: DNS is the Schema for the DNSs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DNSSpec defines the desired state of DNS
+            properties:
+              cleanRRKeys:
+                description: Set to 1 if you want to clean up all the existing DNS
+                  records for the configured keys before adding new records Default
+                  0
+                type: boolean
+              createPTR:
+                description: Attribute to control if DNS online should create PTR
+                  records for each RR of type A or AAAA. Default 0
+                type: boolean
+              dnsResOperation:
+                description: User/Orchestrator initiated operation on DNS resource.
+                  This operations will help in updating DNS Endpoints. Default "none"
+                enum:
+                - none
+                - probe
+                - online
+                - offline
+                type: string
+              domain:
+                description: Domain Name For DNS
+                type: string
+              iState:
+                description: Intended state
+                enum:
+                - OFFLINE
+                - FAULTED
+                - ONLINE
+                - INIT
+                type: string
+              offDelRR:
+                description: Attribute to control if DNS offline should remove all
+                  records defined by ResRecord Default 0
+                type: boolean
+              refreshInterval:
+                description: This attribute represents the time interval in seconds
+                  after which the DNS agent attempts to refresh the resource records
+                  (RRs) on the DNS servers.
+                format: int32
+                type: integer
+              resRecord:
+                additionalProperties:
+                  type: string
+                description: 'An association of DNS resource record value Specify
+                  the key values in map format resRecord: key1: value1 key2: value2'
+                type: object
+              stealthMasters:
+                description: The list of primary master name servers in the domain.
+                items:
+                  type: string
+                type: array
+              tsigKeyFile:
+                description: Path for the file containing private TSIG key, required
+                  for secure DNS updates. Configure only for UNIX based DNS server
+                type: string
+              ttl:
+                description: Time to Live value, in seconds for DNS entries in the
+                  zone Default 86400
+                format: int32
+                type: integer
+              useGSSAPI:
+                description: Set to 1 if the DNS server that you have configured is
+                  a Windows DNS server and only if it accepts secure dynamic updates.
+                  Default 0
+                type: boolean
+            required:
+            - domain
+            - resRecord
+            type: object
+          status:
+            description: DNSStatus defines the observed state of DNS
+            properties:
+              dnsState:
+                description: DNS state
+                enum:
+                - OFFLINE
+                - FAULTED
+                - ONLINE
+                - INIT
+                type: string
+              groupid:
+                description: Service group name for this DNS CR
+                type: string
+            required:
+            - dnsState
+            - groupid
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: infoscale-vtas/infoscale-dr-webhook-cert
+    controller-gen.kubebuilder.io/version: v0.19.0
+  name: globalclustermemberships.infoscale.veritas.com
+spec:
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: infoscale-dr-webhook-service
+          namespace: infoscale-vtas
+          path: /convert
+      conversionReviewVersions:
+      - v1
+  group: infoscale.veritas.com
+  names:
+    kind: GlobalClusterMembership
+    listKind: GlobalClusterMembershipList
+    plural: globalclustermemberships
+    shortNames:
+    - gcm
+    singular: globalclustermembership
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.localClusterName
+      name: Cluster Name
+      type: string
+    - jsonPath: .status.phase
+      name: Cluster State
+      type: string
+    - jsonPath: .status.globalClusterProtocol
+      name: Protocol
+      type: string
+    - jsonPath: .status.peerClusterLinkState
+      name: Peer Link State
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: GlobalClusterMembership is the Schema for the globalclustermemberships
+          API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: GlobalClusterMembershipSpec defines the desired state of
+              GlobalClusterMembership.
+            properties:
+              backupClusterScopeCRD:
+                description: Include Cluster-scoped Custom resources (CRDs) in drplan
+                  backup, Default value is true
+                type: boolean
+              counterMissTolerance:
+                description: |-
+                  Every 60 seconds, tries to heartbeat with peer clusters.
+                  If heartbeat missed more than CounterMissTolerance times, then move to FAULTED state.
+                  Default value is 5.
+                maximum: 10
+                minimum: 3
+                type: integer
+              datarepRefreshStatusFrequency:
+                description: |-
+                  Refresh data replication status after specified minutes.
+                  Default is 10 minutes.
+                maximum: 30
+                minimum: 5
+                type: integer
+              globalClusterOperation:
+                description: |-
+                  User/Orchestrator initiated operation on Global Cluster Membership.
+                  Default value is "none", idle state.
+                  "localbuild: User seeding cluster membership, validating local copy of GCM.
+                enum:
+                - none
+                - localbuild
+                type: string
+              globalClusterProtocol:
+                description: |-
+                  Protocol represents behavior of the cluster.
+                  Cluster can support multiple protocols. Please see the controller logs for list of supported protocols.
+                type: integer
+              globalMemberClusters:
+                description: Details of Member Cluster(s)
+                items:
+                  properties:
+                    clusterID:
+                      description: Cluster ID
+                      maxLength: 16
+                      type: string
+                    drControllerAddress:
+                      description: Address Used For Communicating With Peer Cluster’s
+                        DR Controller
+                      type: string
+                    drControllerPort:
+                      description: 'Port Used For DR Controller. Default: 14155'
+                      type: string
+                  required:
+                  - clusterID
+                  - drControllerAddress
+                  type: object
+                type: array
+              localClusterName:
+                description: Out Of MemberCluster(s), Specify Local Cluster Name
+                maxLength: 16
+                type: string
+              maximumMetadataCopies:
+                description: |-
+                  Application metadata backup maximum copies per DR plan.
+                  Default value is 5.
+                maximum: 20
+                minimum: 5
+                type: integer
+              metadataBackupInterval:
+                description: |-
+                  Application metadata backup sync frequency to DR site(s) in minutes.
+                  Default value is 15.
+                maximum: 60
+                minimum: 5
+                type: integer
+            required:
+            - globalMemberClusters
+            - localClusterName
+            type: object
+          status:
+            description: GlobalClusterMembershipStatus defines the observed state
+              of GlobalClusterMembership.
+            properties:
+              globalClusterProtocol:
+                description: |-
+                  Protocol represents behavior of the cluster.
+                  Cluster can support multiple protocols. Please see the controller logs for list of supported protocols.
+                type: integer
+              licenseCRCreationTimestamp:
+                description: Details of licensing CR creation time
+                maxLength: 100
+                type: string
+              peerClusterLinkState:
+                additionalProperties:
+                  description: Possible peer link states
+                  enum:
+                  - UNKNOWN
+                  - DISCOVER
+                  - HB_ALIVE
+                  - CONNECTED
+                  - HB_DOWN_CONNECTED
+                  - FAULTED
+                  - EXITING
+                  - EXITED
+                  type: string
+                description: Map of MemberCluster and PeerLinkState
+                type: object
+              phase:
+                description: State of Global Cluster Membership
+                enum:
+                - UNKNOWN
+                - DISCOVER_WAIT
+                - ADMIN_WAIT
+                - RUNNING
+                - EXITING
+                - EXITED
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: v1
+imagePullSecrets:
+- name: infoscale-dr-imgpuller
+kind: ServiceAccount
+metadata:
+  name: infoscale-dr-manager
+  namespace: infoscale-vtas
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infoscale-dr-leader-election-role
+  namespace: infoscale-vtas
+rules:
+- apiGroups:
+  - ""
+  - coordination.k8s.io
+  resources:
+  - configmaps
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: infoscale-dr-manager-role
+rules:
+- apiGroups:
+  - kubevirt.io
+  resources:
+  - virtualmachineinstances
+  - virtualmachines
+  - virtualmachinepools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+  - deletecollection
+- apiGroups:
+  - subresources.kubevirt.io
+  resources:
+  - virtualmachines/stop
+  verbs:
+  - put
+  - update
+  - patch
+- apiGroups:
+  - pool.kubevirt.io
+  resources:
+  - virtualmachinepools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+  - deletecollection
+- apiGroups:
+  - cdi.kubevirt.io
+  resources:
+  - datavolumes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+  - deletecollection
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - limitranges
+  - podtemplates
+  - serviceaccounts
+  verbs:
+  - deletecollection
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+  - patch
+  - deletecollection
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumes
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+  - patch
+  - update
+  - deletecollection
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - deletecollection
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - statefulsets
+  verbs:
+  - deletecollection
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - apps
+  resources:
+  - replicasets
+  verbs:
+  - deletecollection
+  - list
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificates/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - datareplications
+  - disasterrecoveryplans
+  - dns
+  - globalclustermemberships
+  - globalclustermemberships/status
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - datareplications/finalizers
+  - disasterrecoveryplans/finalizers
+  - dns/finalizers
+  - globalclustermemberships/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - datareplications/status
+  - disasterrecoveryplans/status
+  - dns/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - infoscaleclusters
+  verbs:
+  - list
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - clusterroles
+  - rolebindings
+  - roles
+  verbs:
+  - bind
+  - escalate
+  - update
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: infoscale-dr-leader-election-rolebinding
+  namespace: infoscale-vtas
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: infoscale-dr-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: infoscale-dr-manager
+  namespace: infoscale-vtas
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: infoscale-dr-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: infoscale-dr-manager-role
+subjects:
+- kind: ServiceAccount
+  name: infoscale-dr-manager
+  namespace: infoscale-vtas
+---
+apiVersion: v1
+data:
+  controller_manager_config.yaml: |
+    apiVersion: controller-runtime.sigs.k8s.io/v1alpha1
+    kind: ControllerManagerConfig
+    health:
+      healthProbeBindAddress: :8081
+    metrics:
+      bindAddress: 127.0.0.1:8080
+    webhook:
+      port: 9443
+    leaderElection:
+      leaderElect: true
+      resourceName: 27b483ca.veritas.com
+kind: ConfigMap
+metadata:
+  name: infoscale-dr-manager-config
+  namespace: infoscale-vtas
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    infoscale.veritas.com/certificate: infoscale-vtas/infoscale-dr-webhook-cert
+  name: infoscale-dr-webhook-service
+  namespace: infoscale-vtas
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443
+  selector:
+    control-plane: infoscale-dr-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: infoscale-dr-manager
+  name: infoscale-dr-manager
+  namespace: infoscale-vtas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: infoscale-dr-manager
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        control-plane: infoscale-dr-manager
+    spec:
+      containers:
+      - args:
+        - --config=controller_manager_config.yaml
+        - --nodename=$(NODENAME)
+        command:
+        - /manager
+        env:
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: INFOSCALE_AUTH_KEYSTORE
+          value: /etc/vx/dr/certs/
+        - name: INFOSCALE_REST_URL
+          value: https://infoscale-vtas-rest:8443
+        - name: REST_CLIENT_DEBUG
+          value: "false"
+        - name: DR_DEPLOYMENT_NS
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: DR_DEPLOYMENT_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['control-plane']
+        - name: TLS_CIPHER_SUITES
+          value: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        image: <org-registry>/arctera/infoscale-dr-operator:9.1.0-rhel
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports:
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        securityContext:
+          allowPrivilegeEscalation: false
+        volumeMounts:
+        - mountPath: /tmp/k8s-webhook-server/serving-certs
+          name: cert
+          readOnly: true
+        - mountPath: /controller_manager_config.yaml
+          name: manager-config
+          subPath: controller_manager_config.yaml
+        - mountPath: /etc/vx/dr/certs
+          name: dr-cert
+          readOnly: true
+        - mountPath: /etc/vx/dr-serv/certs
+          name: dr-certs-dir
+          readOnly: true
+        - mountPath: /staging
+          name: velero-bsl
+      initContainers:
+      - args:
+        - --manage-certs=create
+        - --nodename=$(NODENAME)
+        command:
+        - /manager
+        env:
+        - name: DR_DEPLOYMENT_NS
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: DR_DEPLOYMENT_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['control-plane']
+        - name: NODENAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: <org-registry>/arctera/infoscale-dr-operator:9.1.0-rhel
+        imagePullPolicy: IfNotPresent
+        name: pre-manager
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: infoscale-dr-manager
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: cert
+        secret:
+          defaultMode: 420
+          optional: true
+          secretName: infoscale-dr-webhook-tls-cert
+      - configMap:
+          name: infoscale-dr-manager-config
+          optional: true
+        name: manager-config
+      - name: dr-cert
+        secret:
+          optional: true
+          secretName: infoscale-dr-tls-cert
+      - name: dr-certs-dir
+        secret:
+          optional: true
+          secretName: infoscale-dr-server-cert
+      - name: velero-bsl
+        persistentVolumeClaim:
+          claimName: infoscale-dr-meta-bkp-pvc
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: infoscale-vtas/infoscale-dr-webhook-cert
+  name: infoscale-dr-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /mutate-infoscale-veritas-com-v1-dns
+  failurePolicy: Fail
+  name: dns-mutate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dns
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /mutate-infoscale-veritas-com-v1-disasterrecoveryplan
+  failurePolicy: Fail
+  name: drplan-mutate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - disasterrecoveryplans
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /mutate-infoscale-veritas-com-v1-globalclustermembership
+  failurePolicy: Fail
+  name: gcm-mutate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - globalclustermemberships
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /mutate-infoscale-veritas-com-v1-datareplication
+  failurePolicy: Fail
+  name: replication-mutate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - datareplications
+  sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: infoscale-vtas/infoscale-dr-webhook-cert
+  name: infoscale-dr-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /validate-infoscale-veritas-com-v1-dns
+  failurePolicy: Fail
+  name: dns-validate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - dns
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /validate-infoscale-veritas-com-v1-disasterrecoveryplan
+  failurePolicy: Fail
+  name: drplan-validate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - disasterrecoveryplans
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /validate-infoscale-veritas-com-v1-globalclustermembership
+  failurePolicy: Fail
+  name: gcm-validate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - globalclustermemberships
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: infoscale-dr-webhook-service
+      namespace: infoscale-vtas
+      path: /validate-infoscale-veritas-com-v1-datareplication
+  failurePolicy: Fail
+  name: replication-validate.veritas.com
+  rules:
+  - apiGroups:
+    - infoscale.veritas.com
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    - DELETE
+    resources:
+    - datareplications
+  sideEffects: None

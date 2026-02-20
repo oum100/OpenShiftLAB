@@ -1,0 +1,50 @@
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: infoscale-prom-cert
+  namespace: infoscale-vtas
+spec:
+  commonName: infoscale-prom
+  usages:
+  - client auth
+  duration: 2880h0m0s
+  issuerRef:
+    kind: ClusterIssuer
+    name: infoscale-cert-issuer
+  renewBefore: 720h0m0s
+  secretName: infoscale-prom-tls
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: infoscale-metrics
+  namespace: infoscale-vtas
+  labels:
+    release: kube-prometheus-stack          #(for k8s setups release value should be the same as helm release)
+spec:
+  selector:
+    matchLabels:
+      cvmmaster: "true"
+  podMetricsEndpoints:
+  - path: /infoscale/api/2.0/metrics
+    port: rest-endpoint
+    interval: 2m
+    scrapeTimeout: 30s
+    scheme: https
+    tlsConfig:
+      ca:
+        secret:
+          key: ca.crt
+          name: infoscale-prom-tls
+      cert:
+        secret:
+          key: tls.crt
+          name: infoscale-prom-tls
+      keySecret:
+        key: tls.key
+        name: infoscale-prom-tls
+      serverName: infoscale-sds-rest-<CLUSTER_ID>

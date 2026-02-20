@@ -1,0 +1,34 @@
+
+---
+apiVersion: infoscale.veritas.com/v1
+kind: DisasterRecoveryPlan
+metadata:
+  name: test-disaster-recovery-plan
+  #namespace: <enter the namespace>
+spec:
+  # Name of cluster that should be treated as primary for this DR plan
+  primaryCluster: Clus1
+
+  # (optional) Set force to True if peer cluster(s) is not reachable and local cluster needs to perform takeover
+  force: false
+
+  # List of member cluster(s) where this DRPlan can failover.
+  # Sequence of MemberCluster specified in this list denotes relative preference of member cluster(s)
+  # Must be subset of Global Cluster Membership
+  preferredClusterList: ["Clus1", "Clus2"]
+
+  # Kind of corrective action in case of disaster
+  # default value will be "Manual" if not specified
+  clusterFailOverPolicy: Manual
+
+  # Specify namespace and optionally labels to decide what all needs to be part of the disaster recovery plan
+  selector:
+    namespace: mysql
+    #labels:
+    #  - "app=db,env=dev"
+
+  # (optional) Pointer to manage data replication
+  #dataReplicationPointer: test-datareplication
+
+  # (optional) Pointer to manage DNS endpoints
+  #dnsPointer: test-dns

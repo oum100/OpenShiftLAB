@@ -1,0 +1,16 @@
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: csi-infoscale-volume-clone
+spec:
+  storageClassName: csi-infoscale-sc
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  dataSource:
+    kind: PersistentVolumeClaim
+    name: csi-infoscale-pvc

@@ -1,0 +1,19 @@
+
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: infoscale-licensing-operator-sub
+  # Namespace should be either infoscale-vtas
+  # or openshift-operators
+  namespace: infoscale-vtas
+spec:
+  # Cluster admin can move to fast channel for cross release InfoScale upgrades
+  channel: fast
+  name: infoscale-licensing-operator
+  installPlanApproval: Manual
+  # Source can be infoscale-licensing-operator-catalog
+  # if licensing-catsrc.yaml is used
+  source: certified-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: infoscale-licensing-operator.v9.1.0

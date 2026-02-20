@@ -1,0 +1,31 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: infoscale-dr-cluster-role
+rules:
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - globalclustermemberships
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - globalclustermemberships/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - globalclustermemberships/status
+  verbs:
+  - get

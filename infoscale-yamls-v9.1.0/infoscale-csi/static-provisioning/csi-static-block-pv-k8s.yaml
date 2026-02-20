@@ -1,0 +1,22 @@
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: csi-infoscale-block-pv
+  annotations:
+    pv.kubernetes.io/provisioned-by: org.veritas.infoscale
+spec:
+  volumeMode: Block
+  storageClassName: csi-infoscale-sc
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: org.veritas.infoscale
+    # Please provide pre-provisioned Infoscale volume name.
+    volumeHandle: clust_<cluster_id>/vrts_kube_dg-<cluster_id>/testVol
+    volumeAttributes:
+      volumePath: "/dev/blk"

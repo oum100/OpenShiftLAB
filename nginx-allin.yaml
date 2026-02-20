@@ -5,6 +5,22 @@ metadata:
   labels:
     kubernetes.io/metadata.name: nginx-demo
 ---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: infoscale-concat-sc
+  namespace: nginx-demo
+  annotations:
+    description: Infoscale Concat StorageClass
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: org.veritas.infoscale
+parameters:
+  fstype: vxfs
+  layout: concat
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: Immediate
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -39,7 +55,7 @@ spec:
       initContainers:
         - name: init-web
           image: busybox:1.36
-          command: ["sh","-c"]
+          command: ["sh", "-c"]
           args:
             - |
               if [ ! -f /work/index.html ]; then
@@ -71,7 +87,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx-service
-  namespace: nginx-demo  
+  namespace: nginx-demo
 spec:
   type: ClusterIP
   selector:

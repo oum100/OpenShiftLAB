@@ -1,0 +1,10 @@
+
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: csi-static-snapshot
+spec:
+  volumeSnapshotClassName: csi-infoscale-snapclass
+  source:
+    volumeSnapshotContentName: csi-static-snapshot-content

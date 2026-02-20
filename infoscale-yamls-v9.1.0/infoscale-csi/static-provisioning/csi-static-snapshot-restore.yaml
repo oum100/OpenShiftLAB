@@ -1,0 +1,17 @@
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: csi-static-snapshot-restore
+spec:
+  storageClassName: csi-infoscale-sc
+  dataSource:
+    name: csi-static-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi

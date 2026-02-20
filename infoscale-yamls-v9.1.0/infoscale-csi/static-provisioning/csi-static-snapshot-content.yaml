@@ -1,0 +1,15 @@
+
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotContent
+metadata:
+  name: csi-static-snapshot-content
+spec:
+  deletionPolicy: Retain
+  driver: org.veritas.infoscale
+  source:
+    # Provide pre-provisioned Infoscale snapshot volume name
+    snapshotHandle: clust_<clusterid>/vrts_kube_dg-<clusterid>/testSnapVol
+  volumeSnapshotRef:
+    name: csi-static-snapshot
+    namespace: default

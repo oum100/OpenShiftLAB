@@ -1,0 +1,80 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: infoscale-dr-admin-role
+  namespace: application-namespace
+rules:
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - datareplications
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - datareplications/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - datareplications/status
+  verbs:
+  - get
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - disasterrecoveryplans
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - disasterrecoveryplans/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - disasterrecoveryplans/status
+  verbs:
+  - get
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - dns
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - dns/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infoscale.veritas.com
+  resources:
+  - dns/status
+  verbs:
+  - get

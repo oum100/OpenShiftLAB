@@ -1,0 +1,32 @@
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    meta.helm.sh/release-name: prometheus
+    meta.helm.sh/release-namespace: default
+  generation: 1
+  labels:
+    app: kube-prometheus-stack
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kube-prometheus-stack
+    app.kubernetes.io/version: 45.31.1
+    chart: kube-prometheus-stack-45.31.1
+    heritage: Helm
+    release: prometheus
+  name: prometheus-kube-prometheus-alertmanager-infoscale1.rules
+  namespace: infoscale-vtas
+spec:
+  groups:
+    - name: dralert.rules
+      rules:
+        - alert: ReplicationAlert
+          annotations:
+            description: Replication has been stopped/paused
+            summary: Replication has been stopped/paused
+          expr: |-
+            vxvm_rvg_replication_status{job="infoscale-vtas/infoscale-metrics",namespace="infoscale-vtas"} == 0.0
+          labels:
+            severity: critical

@@ -1,0 +1,51 @@
+
+---
+apiVersion: infoscale.veritas.com/v1
+kind: DNS
+metadata:
+  name: test-dns
+  #namespace: <enter the namespace>
+spec:
+  # Domain name for the DNS
+  domain: "vcslnxdns.com"
+
+  # (optional) Path for the file containing private TSIG key, required for secure DNS updates.
+  # Configure only for UNIX based DNS server
+  #tsigKeyFile: "/Kvcslnxdns.com.+157+10641.private"
+
+  # (optional) The list of primary master name servers in the domain.
+  #stealthMasters: ["1.2.3.4"]
+
+  # (optional) An association of DNS resource record value
+  # Specify the key values in map format
+  #resRecord:
+        #"HostName_1" : "100.200.30.41"
+        #"HostName_2" : "100.200.30.42"
+        #"HostName_3" : "100.200.30.43"
+        #"www" : "HostName_1" 
+        #"abc" : "HostName_2"
+        #"xyz" : "HostName_3"
+
+  # (optional) Time to Live value, in seconds for DNS entries in the zone
+  # default value is 86400
+  #ttl: 86400
+
+  # (optional) Time in seconds after which DNS agent
+  # attempts to refresh resrecords on DNS server
+  #refreshInterval: 0
+
+  # (optional)  Set to "true" if the DNS server that you have configured is a Windows DNS server and only if it accepts secure dynamic updates
+  # default is false
+  #useGSSAPI: false
+
+  # (optional) Set to "true" if you want to clean up all the existing DNS records for the configured keys before adding new records
+  # default is false
+  #cleanRRKeys: false
+
+  # (optional) Set to "true" if DNS online should create PTR records for each RR of type A or AAAA
+  # default is false
+  #createPTR: false
+
+  # (optional) Set to "true" if if DNS offline should remove all records defined by ResRecord
+  # default is false
+  #offDelRR: false

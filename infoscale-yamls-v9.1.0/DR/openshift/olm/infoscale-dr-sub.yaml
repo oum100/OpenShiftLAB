@@ -1,0 +1,23 @@
+
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: infoscale-dr-manager-sub
+  # Namespace should be either infoscale-vtas
+  # or openshift-operators
+  namespace: infoscale-vtas
+spec:
+  channel: fast
+  name: infoscale-dr-manager
+  installPlanApproval: Manual
+  # Source can be infoscale-dr-manager-catalog
+  # if infoscale-dr-catsrc.yaml is used
+  source: certified-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: infoscale-dr-manager.v9.1.0
+  # Use the following configuration to toggle custom values and the specified values are defaults
+  #config:
+  #  env:
+  #  - name: TLS_CIPHER_SUITES
+  #    value: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384

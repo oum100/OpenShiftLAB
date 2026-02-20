@@ -1,0 +1,101 @@
+
+---
+apiVersion: infoscale.veritas.com/v1
+kind: DataReplication
+metadata:
+  name: test-datareplication
+  #namespace: <enter the namespace>
+spec:
+  # In case of load balancer based n/w traffic management, set lbEnabled to true. else the default value should be always kept false.
+  lbEnabled : false
+  # Virtual IP address to configure VVR
+  localHostAddress: 10.0.0.1
+  # Corresponding netmask to configure VVR
+  localNetMask: 255.255.240.0
+  # Corresponding network interface to configure VVR (If NIC name is identical for all nodes)
+  localNIC: eth0
+  # Corresponding network interface list (hostname and NIC name ) to configure VVR
+  # (If NIC name is not identical for all nodes)
+  #localNICList:
+  #  - "host1=eth0"
+  #  - "host2=eth0"
+  #  - "host3=eth0"
+  #  - "host4=eth1"
+
+  # (optional) Cloud Vendor (e.g Azure/Aws) on Primary VVR site.
+  cloudVendor: Local
+
+  # (optional) Applicable for Cloud-Vendor based environments, If "localHostAddress" value is an Overlay N/w IP, then specify all applicable Route table resource ids.
+  #routeTableResourceIds:
+  #  - "rtb-fb97ac9d"
+  #  - "rtb-f416eb8d"
+  #  - "rtb-e48be49d"
+
+  # Namespace and optionally labels for which you want to configure data replication
+  selector:
+    namespace: mysql
+    #labels:
+    #  - "app=db,env=dev"
+
+  # Current primary cluster name - Name of the cluster you want to back up
+  currentPrimary: Clus1
+
+  # (optional) In case of takeover operation, specify force to true along with
+  # the updated currentPriamry value. In case of migrate operation,
+  # force should be specified as false and only currentPriamry needs
+  # to be updated.
+  force: false
+
+  # Secondary cluster details
+  remoteClusterDetails:
+      # ID of the Cluster to be used for a backup
+    - clusterName: Clus2
+      # In case of load balancer based n/w traffic management, set remoteLbEnabled to true. else the default value should be always kept false.
+      remoteLbEnabled : false
+      # Virtual IP address for VVR configuration of this cluster
+      remoteHostAddress: 10.0.0.2
+      # Corresponding Netmask of this cluster
+      remoteNetMask: 255.255.240.0
+      # Corresponding Network interface of this cluster
+      remoteNIC: eth0
+      # Corresponding Network interface list of this cluster
+      #remoteNICList:
+      #  - "host5=eth1"
+      #  - "host6=eth0"
+      #  - "host7=eth0"
+      #  - "host8=eth1"
+
+      # (optional) Cloud Vendor (e.g Azure/Aws) on remote VVR site.
+      remoteCloudVendor: Local
+
+      # (optional) Applicable for Cloud-Vendor based environments, If "remoteHostAddress" value is an Overlay N/w IP, then specify all applicable Route table resource ids.
+      #remoteRouteTableResourceIds:
+      #  - "rtb-fb97ac9d"
+      #  - "rtb-f416eb8d"
+      #  - "rtb-e48be49d"
+
+      # (optional) replication type can be sync or async.
+      # default value will be async if not specified.
+      replicationType: async
+
+      # (optional) replicationState can have values start, stop, pause and resume.
+      # This field can be updated to start/stop/pause/resume replication.
+      # Default value will be set to start during initial configuration.
+      replicationState: start
+
+      # (optional) network transport protocol can be TCP or UDP.
+      # Default value will be set to TCP during initial configuration and
+      # can be later changed to UDP.
+      networkTransportProtocol: TCP
+
+      # (optional) By default, it will be set to N/A during initial configuration, which means the available bandwidth will be used.
+      # It can be later changed to set the maximum network bandwidth (in bits per second).
+      bandwidthLimit: N/A
+
+      # (optional) Supported values for latency protection are: fail, disable and override.
+      # By default it will be set to disable during initial configuration and can be changed later.
+      latencyProtection: disable
+
+      # (optional) Supported values log (SRL) protection are: autodcm, dcm, fail, disable and override.
+      # By default it will be set to autodcm during initial configuration and can be changed later.
+      logProtection: autodcm

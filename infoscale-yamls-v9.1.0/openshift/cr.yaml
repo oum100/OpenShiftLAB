@@ -1,0 +1,124 @@
+# $Id$
+# ident "$Source$"
+#
+# $Copyright (c) 2021 Veritas Technologies LLC.  All rights reserved. Veritas
+# and the Veritas Logo are trademarks or registered trademarks of Veritas
+# Technologies LLC or its affiliates in the U.S. and other countries. Other
+# names may be trademarks of their respective owners.
+#
+# The Licensed Software and Documentation are deemed to be commercial computer
+# software as defined in FAR 12.212 and subject to restricted rights as defined
+# in FAR Section 52.227-19 "Commercial Computer Software - Restricted Rights" and
+# DFARS 227.7202, et seq. "Commercial Computer Software and Commercial Computer
+# Software Documentation," as applicable, and any successor regulations, whether
+# delivered by Veritas as on premises or hosted services. Any use, modification,
+# reproduction release, performance, display or disclosure of the Licensed Software
+# and Documentation by the U.S. Government shall be solely in accordance with the
+# terms of this Agreement.
+
+
+
+---
+apiVersion: infoscale.veritas.com/v1
+kind: InfoScaleCluster
+metadata:
+  # Please change cluster name if required
+  name: infoscalecluster-dev
+  namespace: infoscale-vtas
+
+spec:
+
+  # This denotes version of the InfoScale release
+  version: 9.1.0
+
+  # (optional) This denotes the user-provisioned ID for InfoScale cluster
+  # The value can range from 1 to 65535
+
+  # clusterID: <Cluster_ID>
+
+  clusterInfo:
+
+  # Please change worker node names according to your cluster configuration
+  # Mention additional worker node names and corresponding node specific
+  # parameters, as applicable.
+
+  - nodeName: "<Hostname_of_worker_node>"
+
+    # (optional) Specifies node IP address(es) to be used for InfoScale cluster.
+    # If omitted, InfoScale chooses available IP address(es) for cluster config.
+    # Please change worker IP address(es) according to your cluster configuration
+
+    # ip:
+    # - "<IP_Address_1>"
+    # - "<IP_Address_2>"
+
+    # (optional) Specifies a node-specific list of devices for InfoScale configuration.
+    #
+    # Only one of the following fields can be used at a time:
+    # - `includeDevices`: List of devices to be explicitly included in InfoScale configuration.
+    # - `excludeDevice`: List of devices to be excluded from InfoScale configuration.
+    #
+    # Please update the device names according to your cluster setup.
+
+    # includeDevices:
+    # - "<Hardware_Path_to_device_to_be_included>"
+
+    # excludeDevice:
+    # - "<Hardware_Path_to_device_to_be_excluded>"
+
+    # (optional) Specifies node specific list of devices to be used for fencing purpose
+    # It is sufficient to provide fencing device information from one node
+    # (optional) Specifies node specific list of devices to be used for fencing purpose
+    # It is sufficient to provide fencing device information from one node
+    # Please change device names according to your cluster configuration
+
+    # fencingDevice:
+    # - "<Hardware_Path_to_device_to_be_used_for_fencing>"
+
+  - nodeName: "<Hostname_of_worker_node>"
+
+    # (optional) Specifies node IP address(es) to be used for InfoScale cluster.
+    # If omitted, InfoScale chooses available IP address(es) for cluster config.
+    # Please change worker IP address(es) according to your cluster configuration
+
+    # ip:
+    # - "<IP_Address_1>"
+    # - "<IP_Address_2>"
+
+    # (optional) Specifies node specific list of devices to be excluded from
+    # InfoScale configuration.
+    # Please change device names according to your cluster configuration
+
+    # excludeDevice:
+    # - "<Hardware_Path_to_device_to_be_excluded>"
+
+  # Please change below customImageRegistry according to your environment
+  # This is mandatory for Kubernetes and Air gapped system deployments
+  # This is optional for OCP deployments
+
+  # customImageRegistry: "<Custom_Registry_Address>"
+
+  # (optional) Specifies whether SCSI-3 Persistent Reservation should be enabled
+  # If omitted, SCSI3-PR reserveation will be disabled by default.
+  # Valid values are true or false.
+
+  # enableScsi3pr : <true/false>
+
+  # (optional) Specifies whether Disk Group Level Encryption should be enabled
+  # If omitted, Disk Group Level Encryption will be disabled by default.
+  # Valid values are true or false.
+
+  # encrypted: <true|false>
+
+  # (optional) Specifies whether Disk Group Level Encryption Key should be same for all volumes in the DG
+  # If omitted, different key will be created for each volume by default.
+  # Valid values are true or false.
+
+  # sameEncKey: <true|false>
+
+  # (optional) Specifies whether to create Shared NonFSS Disk Group.
+  # With this option only the full shared disks will be included in Disk Group
+  # If omitted, FSS Disk Group will be created by default.
+  # Valid values are true or false.
+
+  # isSharedStorage: <true|false>

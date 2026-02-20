@@ -1,0 +1,20 @@
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-infoscale-resiliency-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+provisioner: org.veritas.infoscale
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+parameters:
+  fstype: vxfs
+
+  # (optional) Specifies a volume layout type.
+  # Supported layouts: stripe, mirror, stripe-mirror, mirror-stripe, concat, concat-mirror, mirror-concat
+  layout: "mirror"
+
+  # (optional) Specifies the number of disk or host failures a storage object can tolerate.
+  faultTolerance: "2"

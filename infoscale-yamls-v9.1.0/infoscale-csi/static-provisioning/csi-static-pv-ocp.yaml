@@ -1,0 +1,18 @@
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: csi-infoscale-pv
+spec:
+  storageClassName: csi-infoscale-sc
+  persistentVolumeReclaimPolicy: Retain
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: org.veritas.infoscale
+    # Please provide pre-provisioned Infoscale volume name.
+    volumeHandle: clust_<cluster_id>/vrts_kube_dg-<cluster_id>/testVol
+    fsType: vxfs

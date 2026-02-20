@@ -1,0 +1,18 @@
+
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  # do not change "name" value.
+  name:  infoscale-azure-auth
+  namespace: infoscale-vtas
+data:
+  # base64-coded valid Identifier that uniquely identifies your Azure subscription.
+  subscriptionId: "aW5mb3NjYWxl"
+  # base64-coded valid Identifier of the Azure Active Directory (AAD) Application.
+  clientId: "aW5mb3NjYWxlY2xpZW50"
+  # base64-coded valid Authentication key generated for the AAD application.
+  secretKey:  "aW5mb3NjYWxlc2VjcmV0"
+  # base64-coded valid Identifier of the AAD directory in which you created the application.
+  tenantId: "aW5mb3NjYWxldGVuYW50SWQ="

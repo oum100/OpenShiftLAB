@@ -1,0 +1,9 @@
+
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: infoscale-sds-opgroup
+  namespace: infoscale-vtas
+  annotations:
+    olm.providedAPIs: DNS.v1.infoscale.veritas.com,DataReplication.v1.infoscale.veritas.com,DisasterRecoveryPlan.v1.infoscale.veritas.com,GlobalClusterMembership.v1.infoscale.veritas.com,InfoScaleCluster.v1.infoscale.veritas.com,InfoScaleClusterSet.v1.infoscale.veritas.com,License.v1.vlic.veritas.com

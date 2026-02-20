@@ -1,0 +1,9 @@
+
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: infoscale-sds-opgroup
+  namespace: infoscale-vtas
+  annotations:
+    olm.providedAPIs: InfoScaleCluster.v1.infoscale.veritas.com,InfoScaleClusterSet.v1.infoscale.veritas.com,License.v1.vlic.veritas.com

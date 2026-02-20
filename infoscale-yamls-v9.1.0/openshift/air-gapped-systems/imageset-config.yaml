@@ -1,0 +1,32 @@
+
+---
+apiVersion: mirror.openshift.io/v1alpha2
+kind: ImageSetConfiguration
+storageConfig:
+  registry:
+    imageURL: ${LOCAL_REGISTRY}/operators
+    skipTLS: false
+mirror:
+  platform:
+    channels:
+    - name: stable-${OCP_RELEASE}
+      type: ocp
+  operators:
+  - catalog: registry.redhat.io/redhat/redhat-operator-index:v${OCP_RELEASE}
+    packages:
+    - name: nfd
+      channels:
+      - name: stable
+    - name: openshift-cert-manager-operator
+      channels:
+      - name: stable-v1
+  - catalog: registry.redhat.io/redhat/certified-operator-index:v${OCP_RELEASE}
+    packages:
+    - name: infoscale-licensing-operator
+      channels:
+      - name: stable
+  - catalog: registry.redhat.io/redhat/certified-operator-index:v${OCP_RELEASE}
+    packages:
+    - name: infoscale-sds-operator
+      channels:
+      - name: stable

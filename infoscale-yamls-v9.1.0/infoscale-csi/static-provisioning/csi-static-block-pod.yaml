@@ -1,0 +1,20 @@
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+  labels:
+    name: redis
+spec:
+  containers:
+    - name: redis
+      image: redis
+      imagePullPolicy: IfNotPresent
+      volumeDevices:
+        - devicePath: "/dev/blk"
+          name: vol1
+  volumes:
+    - name: vol1
+      persistentVolumeClaim:
+        claimName: csi-infoscale-block-pvc
